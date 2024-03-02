@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:5.7
+    restart: always
+    volumes:
+      - ./database:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "cbrx"
+      MYSQL_USER: "wordpress"
+      MYSQL_PASSWORD: "password"
+
+  wordpress:
+    image: wordpress:latest
+    depends_on:
+      - mysql
+    links:
+      - mysql
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./html:/var/www/html
+      - ./theme/:/var/www/html/wp-content/themes
+#      - ./plugin/:/var/www/html/wp-content/plugins/ale-core 
+    environment:
+      WORDPRESS_DB_HOST: "mysql"
+      WORDPRESS_DB_USER: "wordpress"
+      WORDPRESS_DB_PASSWORD: "password"
+      WORDPRESS_DB_NAME: "cbrx"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+      - "8081:443"
+    environment:
+      PMA_HOST: "mysql"
+      PMA_USER: "root"
+      PMA_PASSWORD: "password"
+
+#  mkcert:
+#    image: brunopadz/mkcert-docker
+#    volumes:
+#      - ./certs:/certs
+#  mkcert:
+#    image: mkcert/mkcert:v1.4.3
+#    volumes:
+#      - ./certs:/certs
+#    command: ["sh", "-c", "mkcert -install && mkcert localhost"]
+
